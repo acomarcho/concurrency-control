@@ -1,6 +1,5 @@
 from transaction import Transaction
 from resource import Resource
-import time
 
 class TransactionManager:
   def __init__(self, data):
