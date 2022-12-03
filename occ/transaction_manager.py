@@ -28,11 +28,13 @@ class TransactionManager:
         resource = self.resources[task['resource']]
         transaction.write(resource)
         res.append(f"W{task['transaction']}({task['resource']})")
+        print(f"Transaction T{task['transaction']} writes {task['resource']}")
         idx += 1
       elif task['operation'] == 'read':
         resource = self.resources[task['resource']]
         transaction.read(resource)
         res.append(f"R{task['transaction']}({task['resource']})")
+        print(f"Transaction T{task['transaction']} reads {task['resource']}")
         idx += 1
       elif task['operation'] == 'commit':
         transaction.validation_ts = self.ts
@@ -47,8 +49,18 @@ class TransactionManager:
                 continue
               elif to_check.finish_ts and transaction.start_ts < to_check.finish_ts and to_check.finish_ts < transaction.validation_ts:
                 for r1 in to_check.written_resources:
+                  if not can_commit:
+                      break
                   for r2 in transaction.read_resources:
+                    if not can_commit:
+                      break
                     if r1 == r2:
+                      conflicting_resource = ""
+                      for resource in self.resources:
+                        if self.resources[resource] == r1:
+                          conflicting_resource = resource
+                          break
+                      print(f"Transaction T{task['transaction']} cannot commit, conflicting with T{key} on resource {conflicting_resource}")
                       can_commit = False
                 if not can_commit:
                   break
@@ -58,9 +70,11 @@ class TransactionManager:
           
         if can_commit:
           res.append(f"C{task['transaction']}")
+          print(f"Transaction T{task['transaction']} commits")
           idx += 1
         else:
           res.append(f"A{task['transaction']}")
+          print(f"Transaction T{task['transaction']} aborts")
           newSchedule = []
           for prev in range(idx):
             if not self.transactions[self.schedule[prev]['transaction']].finish_ts:
@@ -77,5 +91,6 @@ class TransactionManager:
 
           self.transactions[task['transaction']] = Transaction(self.ts)
           self.schedule = newSchedule
-          
-    print('; '.join(res).strip())
+    
+    print("Schedule with OCC:")
+    print('; '.join(res).strip() + ';')
