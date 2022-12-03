@@ -20,10 +20,8 @@ class TransactionManager:
         # Return true if the next operation of the current transaction is commit, false otherwise
         for i in range(idx+1, len(self.schedule)):
             if self.schedule[i]['transaction'] == sched['transaction']:
-                if self.schedule[i]['operation'] == 'commit':
-                    return True
-                else:
-                    return False
+                return self.schedule[i]['operation'] == 'commit'
+
     def run(self): 
         for idx, sched in enumerate(self.schedule): 
             # Commit will be skipped, handled with isLastOperation method
@@ -43,6 +41,7 @@ class TransactionManager:
                     print(f"Transaction T{sched['transaction']} reads {sched['resource']}")
                 # Unlock
                 self.resources[sched['resource']].unlock()
+                self.res.append(f"UL{sched['transaction']}({sched['resource']})")
                 print(f"Exclusive lock on resource {sched['resource']} is unlocked")
                 # Directly commit if last operation
                 if self.isLastOperation(sched, idx):
