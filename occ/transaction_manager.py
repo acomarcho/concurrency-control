@@ -75,22 +75,25 @@ class TransactionManager:
         else:
           res.append(f"A{task['transaction']}")
           print(f"Transaction T{task['transaction']} aborts")
-          newSchedule = []
+          aborted_operations = []
           for prev in range(idx):
-            if not self.transactions[self.schedule[prev]['transaction']].finish_ts:
-              newSchedule.append(self.schedule[prev])
-            elif self.transactions[self.schedule[prev]['transaction']] == transaction:
-              newSchedule.append(self.schedule[prev])
-          for next in range(idx, len(self.schedule)):
-            newSchedule.append(self.schedule[next])
-
-          for newIndex, entry in enumerate(newSchedule):
-            if self.transactions[entry['transaction']] == transaction:
-              idx = newIndex
-              break
+            if self.transactions[self.schedule[prev]['transaction']] == transaction:
+              aborted_operations.append(self.schedule[prev])
 
           self.transactions[task['transaction']] = Transaction(self.ts)
-          self.schedule = newSchedule
+
+          for op in aborted_operations:
+            transaction = self.transactions[op['transaction']]
+            if op['operation'] == 'write':
+              resource = self.resources[op['resource']]
+              transaction.write(resource)
+              res.append(f"W{op['transaction']}({op['resource']})")
+              print(f"Transaction T{op['transaction']} writes {op['resource']}")
+            elif op['operation'] == 'read':
+              resource = self.resources[op['resource']]
+              transaction.read(resource)
+              res.append(f"R{op['transaction']}({op['resource']})")
+              print(f"Transaction T{op['transaction']} reads {op['resource']}")
     
     print("Schedule with OCC:")
     print('; '.join(res).strip() + ';')
