@@ -36,6 +36,7 @@ class TransactionManager:
               if version.w_ts > latest_version.w_ts:
                 latest_version = version
         if latest_version.r_ts < transaction.ts:
+          print(f">> Updated R-timestamp(Qk) from {latest_version.r_ts} to {transaction.ts} for resource {task['resource']}")
           latest_version.r_ts = transaction.ts
         transaction.read(resource)
         res.append(f"R{task['transaction']}({task['resource']})")
@@ -52,8 +53,9 @@ class TransactionManager:
               if version.w_ts > latest_version.w_ts:
                 latest_version = version
         if transaction.ts < latest_version.r_ts:
-          res.append(f"A{op['transaction']}")
-          print(f"Transaction T{op['transaction']} aborts")
+          res.append(f"A{task['transaction']}")
+          print(f">> TS(T{task['transaction']}), which is {transaction.ts}, is less than R-timestamp(Qk) for resource {task['resource']}, which is {latest_version.r_ts}")
+          print(f"Transaction T{task['transaction']} aborts")
           aborted_operations = []
           for prev in range(idx):
             if self.transactions[self.schedule[prev]['transaction']] == transaction:
@@ -78,16 +80,19 @@ class TransactionManager:
               print(f"Transaction T{op['transaction']} reads {op['resource']}")
             elif op['operation'] == 'write':
               if transaction.ts == latest_version.w_ts:
-                pass
+                print(f">> Overwritten the contents of Qk for resource {op['resource']}")
               else:
+                print(f">> Made a new version Qi with W-timestamp(Qi) and R-timestamp(Qi) = {transaction.ts} for resource {op['resource']}")
                 new_version = Version(transaction.ts, transaction.ts)
                 resource.versions.append(new_version)
-              res.append(f"W{task['transaction']}({task['resource']})")
-              print(f"Transaction T{task['transaction']} writes {task['resource']}")
+              res.append(f"W{op['transaction']}({op['resource']})")
+              print(f"Transaction T{op['transaction']} writes {op['resource']}")
           continue
         elif transaction.ts == latest_version.w_ts:
+          print(f">> Overwritten the contents of Qk for resource {task['resource']}")
           pass
         else:
+          print(f">> Made a new version Qi with W-timestamp(Qi) and R-timestamp(Qi) = {transaction.ts} for resource {task['resource']}")
           new_version = Version(transaction.ts, transaction.ts)
           resource.versions.append(new_version)
         transaction.write(resource)
