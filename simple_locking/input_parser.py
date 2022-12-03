@@ -11,18 +11,20 @@ class InputParser:
     # Proses setiap task
     for task in tasks:
       # Lakukan stripping lebih dahulu
-      task = task.lstrip()
+      task = task.strip()
       task = task.rstrip(';')
-      if (len(task) == 0):
+      if len(task) == 0:
         break
       # Ambil data transaksi dan resource
       transaction = task[1]
-      resource = task.split('(')[0].rstrip(')')
+      resource = None
+      if task[0] == 'W' or task[0] == 'R':
+        resource = task.split('(')[1].rstrip(')')
       # Proses transaksi
       if transaction not in self.transactions:
         self.transactions.append(transaction)
       # Proses resource
-      if resource not in self.resources:
+      if resource and resource not in self.resources:
         self.resources.append(resource)
       # Proses schedule
       if (task[0] == 'W'):
