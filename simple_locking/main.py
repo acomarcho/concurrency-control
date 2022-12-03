@@ -14,3 +14,5 @@ if __name__ == '__main__':
   print(input_parser.transactions)
   print(input_parser.resources)
   print(input_parser.schedule)
+
+  # TODO: Add functionality biar bisa return urutan eksekusi yang sesuai, contoh XL1(X); R1(X); XL2(Y); R2(Y); C2; XL1(Y); R1(Y); C1
