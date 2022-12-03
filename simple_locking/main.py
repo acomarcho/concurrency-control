@@ -1,5 +1,5 @@
 from input_parser import InputParser
-
+from transaction_manager import TransactionManager
 if __name__ == '__main__':
   print("======================================================")
   print("Simulasi Simple Locking (Exclusive Locks Only)")
@@ -11,8 +11,5 @@ if __name__ == '__main__':
 
   input_parser = InputParser()
   input_parser.parse(test_case)
-  print(input_parser.transactions)
-  print(input_parser.resources)
-  print(input_parser.schedule)
-
-  # TODO: Add functionality biar bisa return urutan eksekusi yang sesuai, contoh XL1(X); R1(X); XL2(Y); R2(Y); C2; XL1(Y); R1(Y); C1
+  transaction_manager = TransactionManager(input_parser)
+  transaction_manager.run()
