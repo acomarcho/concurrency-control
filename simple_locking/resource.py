@@ -1,7 +1,7 @@
 class Resource: 
     def __init__(self):
         self.transaction = ""
-        # Status true berarti tidak di lock oleh transaksi apapun
+        # Status False berarti tidak di lock oleh transaksi apapun
         self.status = False 
         pass
     def lock(self, transaction):
