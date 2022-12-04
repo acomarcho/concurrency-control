@@ -2,15 +2,16 @@ class Resource:
     def __init__(self):
         self.transaction = ""
         # Status true berarti tidak di lock oleh transaksi apapun
-        self.status = True 
+        self.status = False 
         pass
     def lock(self, transaction):
-        self.status = False
+        self.status = True
         self.transaction = transaction
     
     def unlock(self):
-        self.status = True
+        self.status = False
         self.transaction = ""
-    
-    def isNotXLocked(self):
-        return self.status
+    def isFree(self):
+        return self.transaction == ""
+    def isXLocked(self, transaction):
+        return self.status and self.transaction == transaction
